@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://github.com/PREDICT-EPFL/ConfigOPT/website/figs/logo.png"><br><br>
+  <img src="https://github.com/PREDICT-EPFL/ConfigOPT/blob/main/website/figs/logo.png"><br><br>
 </div>
 
 # Constrained Efficient Global Optimization 
