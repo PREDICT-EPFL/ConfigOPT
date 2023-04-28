@@ -46,6 +46,38 @@ class CONFIGOpt(BaseEGO):
         lcb_feasible = np.prod(1.0 * (constrain_lcb_arr <= 0.0), axis=1)
         return obj_lcb, lcb_feasible
 
+    def addObjectiveSample(self, x_to_add, obj_to_add):
+        # add a scalar objective
+
+        x_to_add = np.expand_dims(x_to_add, axis=0)
+        obj_to_add = np.atleast_2d(obj_to_add)
+        # Add this to the GP model
+        prev_X = self.gp_obj.X
+        prev_obj = self.gp_obj.Y
+
+        new_X = np.vstack([prev_X, x_to_add])
+        new_obj = np.vstack([prev_obj, obj_to_add])
+        self.gp_obj.set_XY(new_X, new_obj)
+
+    def addConstraintSample(self, x_to_add, constraint_to_add):
+        # add a list of constraint or a constraint
+        if isinstance(constraint_to_add, np.ndarray) or \
+                isinstance(constraint_to_add, list):
+            pass
+        else:
+            constraint_to_add = [constraint_to_add]
+
+        x_to_add = np.expand_dims(x_to_add, axis=0)
+        for k in range(self.opt_problem.num_constrs):
+            prev_X = self.gp_constr_list[k].X
+            prev_Y = self.gp_constr_list[k].Y
+
+            y_to_add = np.atleast_2d(constraint_to_add[k])
+
+            new_X = np.vstack([prev_X, x_to_add])
+            new_Y = np.vstack([prev_Y, y_to_add])
+            self.gp_constr_list[k].set_XY(new_X, new_Y)
+
     def optimize(self):
         obj_lcb, lcb_feasible = self.get_acquisition()
         next_point_id = np.argmin(obj_lcb + (1.0-lcb_feasible) * self.INF)
