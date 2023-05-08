@@ -15,17 +15,29 @@ class BaseEGO:
         self.opt_problem = opt_problem
         self.parameter_set = opt_problem.parameter_set
         self.var_dim = opt_problem.config['var_dim']
-        noise_level = base_config['noise_level']
+        if 'noise_level' not in base_config.keys():
+            noise_level = 0.01
+        else:
+            noise_level = base_config['noise_level']
         if type(noise_level) in [list, np.ndarray]:
             self.noise_level = noise_level
         else:
             self.noise_level = [noise_level] * (opt_problem.num_constrs + 1)
         self.kernel_list = self.opt_problem.config['kernel']
 
-        self.x0_arr = opt_problem.init_points
+        x0_arr = opt_problem.init_points
+        if type(x0_arr) == list:
+            x0_arr = np.array(x0_arr)
+        if x0_arr.ndim == 1:
+            x0_arr = np.expand_dims(x0_arr, axis=0)
+        self.x0_arr = x0_arr
 
         init_obj_val_arr, init_constr_val_arr = \
             self.get_obj_constr_val(self.x0_arr)
+        # print(init_obj_val_arr, init_constr_val_arr)
+        if init_constr_val_arr.ndim == 1:
+            init_constr_val_arr = np.expand_dims(
+                init_constr_val_arr, axis=0)
 
         if np.any(np.prod(init_constr_val_arr <= 0, axis=1)):
             self.best_obj = np.min(init_obj_val_arr)
@@ -52,7 +64,8 @@ class BaseEGO:
             )
 
     def get_obj_constr_val(self, x_arr, noise=False):
-        obj_val_arr, constr_val_arr = self.opt_problem.sample_point(x_arr)
+        obj_val_arr, constr_val_arr = \
+            self.opt_problem.sample_point(x_arr)
         return obj_val_arr, constr_val_arr
 
     def get_acquisition(self):

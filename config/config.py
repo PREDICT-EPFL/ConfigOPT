@@ -17,6 +17,9 @@ class CONFIGOpt(BaseEGO):
         else:
             self.beta_func = lambda t: 3
 
+        if 'total_eval_num' not in lcb2_config.keys():
+            lcb2_config['total_eval_num'] = 100
+
         self.INF = 1e10
         self.num_eps = 1e-10   # epsilon for numerical value
         self.t = 0

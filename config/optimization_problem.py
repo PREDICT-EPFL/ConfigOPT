@@ -27,8 +27,12 @@ class OptimizationProblem:
         self.init_points = config['init_points']
         self.init_safe_points = config['init_safe_points']
         self.train_X = config['train_X']
-        self.train_obj, self.train_constr = self.sample_point(self.train_X,
+        try:
+            self.train_obj, self.train_constr = self.sample_point(self.train_X,
                                                               record=False)
+        except:
+            self.train_obj = None
+            self.train_constr = None
         self.candidates = safeopt.\
             linearly_spaced_combinations(self.bounds, self.discretize_num_list)
 
@@ -55,7 +59,12 @@ class OptimizationProblem:
             constraint_val_arr = np.expand_dims(constr_arr, axis=1)
         else:
             obj_val = self.obj(x)
-            obj_val = np.expand_dims(obj_val, axis=1)
+            #print(x, obj_val)
+            try:
+                obj_val = np.expand_dims(obj_val, axis=1)
+            except Exception as e:
+                obj_val = np.expand_dims([obj_val], axis=1)
+
             constraint_val_list = []
             for g in self.constrs_list:
                 constraint_val_list.append(g(x))
