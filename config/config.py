@@ -51,8 +51,11 @@ class CONFIGOpt(BaseEGO):
 
     def addObjectiveSample(self, x_to_add, obj_to_add):
         # add a scalar objective
+        if type(x_to_add) == list:
+            x_to_add = np.array(x_to_add)
+        if x_to_add.ndim == 1:
+            x_to_add = np.expand_dims(x_to_add, axis=0)
 
-        x_to_add = np.expand_dims(x_to_add, axis=0)
         obj_to_add = np.atleast_2d(obj_to_add)
         # Add this to the GP model
         prev_X = self.gp_obj.X
@@ -70,7 +73,11 @@ class CONFIGOpt(BaseEGO):
         else:
             constraint_to_add = [constraint_to_add]
 
-        x_to_add = np.expand_dims(x_to_add, axis=0)
+        if type(x_to_add) == list:
+            x_to_add = np.array(x_to_add)
+        if x_to_add.ndim == 1:
+            x_to_add = np.expand_dims(x_to_add, axis=0)
+
         for k in range(self.opt_problem.num_constrs):
             prev_X = self.gp_constr_list[k].X
             prev_Y = self.gp_constr_list[k].Y
